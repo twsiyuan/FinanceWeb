@@ -1,5 +1,7 @@
 <?php 
 require("config.php");
+
+$edit = isset($_GET["id"]);
     
 $conn = myUtf8Db($db_servername, $db_username, $db_password, $db_name);
 if (!$conn) {
@@ -19,50 +21,23 @@ if (!$conn) {
     </style>
 </head>
 <body>
-	<?php 
-    $active_page = "add";
+	<?php
+	if (!$edit){
+		$active_page = "add";
+	}
     include("navigation.php")?>
     
 	<div class="container theme-showcase" role="main">
 		<div class="page-header">
-			<h1>新增記錄</h1>
+			<h1><?=($edit)? "修改" : "新增"?>記錄</h1>
 		</div>
-		<div id="message">
-        <?php
-        if (isset($_SESSION["add_alert"])){
-            echo $_SESSION["add_alert"];
-            unset($_SESSION["add_alert"]);
-        }
-        ?>
-		</div>
-        <?php
-        echo "<script>";
-        $stmt = $conn->prepare("SELECT DISTINCT `from` AS `category` FROM `record`;");
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result->num_rows > 0){
-            echo "var from_cates = [";
-            while($row = $result->fetch_assoc()){
-                echo "'" . htmlspecialchars($row['category']) . "',";
-            }
-            echo "];";
-        }
-        $stmt->close();
-        
-        $stmt = $conn->prepare("SELECT DISTINCT `to` AS `category` FROM `record`;");
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result->num_rows > 0){
-            echo "var to_cates = [";
-            while($row = $result->fetch_assoc()){
-                echo "'" . htmlspecialchars($row['category']) . "',";
-            }
-            echo "];";
-        }
-        $stmt->close();
-        echo "</script>";
-        ?>
         <form method="post" id="main_form">
+			<?php if ($edit){?>
+			 <div class="input-group">
+                <span class="input-group-addon" id="id_addon">Id</span>
+                <input type="number" class="form-control" id="id" name="id" value="<?=htmlspecialchars($_GET["id"])?>" aria-describedby="id_addon" readonly="readonly">
+            </div>
+			<?php }?>
             <div class="input-group">
                 <span class="input-group-addon" id="from_addon">From</span>
                 <input type="text" class="form-control" id="from" name="from" value="<?=htmlspecialchars(getConfigValue($conn, 'add_from', '現金-錢包'))?>" aria-describedby="from_addon" data-provide="typeahead" autocomplete="off">
@@ -71,7 +46,12 @@ if (!$conn) {
                         hint: true, 
                         highlight: true, 
                         minLength: 1, 
-                        source:from_cates,
+                        source: function(query, proccess){
+                            $.ajax({
+                                url: "data/from-category.php", 
+                                success: function(result){ proccess(result); },
+                            });
+                        },
                         afterSelect:function(query){
                             $("#from").trigger('change');
                         },
@@ -83,23 +63,29 @@ if (!$conn) {
                 </script>
                 <div class="input-group-btn">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a class="dropdown-item" href="javascript:$('#from').val('現金-錢包');$('#from').trigger('change');"><i class="fa fa-money fa-lg"></i> 現金-錢包</a></li>
-                        <li><a class="dropdown-item" href="javascript:$('#from').val('悠悠卡');$('#from').trigger('change');"><i class="fa fa-credit-card fa-lg"></i> 悠悠卡</a></li>
-                        <li><a class="dropdown-item" href="javascript:$('#from').val('兆豐銀行聯名卡');$('#from').trigger('change');"><i class="fa fa-credit-card-alt fa-lg"></i> 兆豐銀行聯名卡</a></li>
-                        <?php
-                        $stmt = $conn->prepare("SELECT DISTINCT `from` FROM `record` GROUP BY `from` ORDER BY MAX(`date`) DESC, MAX(`createTime`) DESC LIMIT 11;");
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-                        if ($result->num_rows > 0){
-                            echo '<li class="divider"></li>';
-                            while($row = $result->fetch_assoc()){
-                                echo '<li><a href="javascript:$(\'#from\').val(\'' . htmlspecialchars($row['from']) . '\');$(\'#from\').trigger(\'change\');">' . $row['from'] . '</a></li>';
-                            }
+                    <ul class="dropdown-menu dropdown-menu-right" id="from_fav_category"></ul>
+					<script>
+						function from_fav_click(value) {
+							$('#from').val(value).trigger('change');
                         }
-                        $stmt->close();
-                        ?>
-                    </ul>
+						
+						$.ajax({
+						url: "data/from-fav-category.php", 
+						success: function(result){ 
+							$.each(result, function(index, value){
+								var item = $('<li></li>');
+								var link = $('<a class="dropdown-item" href="javascript:from_fav_click(\'' +  encodeURI(value.name) + '\');"></a>');
+								if (value.icon) {
+                                    link.html('<i class="fa fa-lg ' + value.icon + '"></i> ' + value.name);
+                                }else{
+									link.text(value.name);
+								}
+
+								$("#from_fav_category").append(item.append(link));
+							});
+						},
+					});
+					</script>
                 </div>
             </div>
             <div class="input-group">
@@ -110,7 +96,12 @@ if (!$conn) {
                         hint: true, 
                         highlight: true, 
                         minLength: 1, 
-                        source:to_cates,
+                        source: function(query, proccess){
+                            $.ajax({
+                                url: "data/to-category.php", 
+                                success: function(result){ proccess(result); },
+                            });
+                        },
                         afterSelect:function(query){
                             $("#to").trigger('change');
                         },
@@ -122,40 +113,49 @@ if (!$conn) {
                 </script>
                 <div class="input-group-btn">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a class="dropdown-item" href="javascript:$('#to').val('交通費');$('#to').trigger('change');"><i class="fa fa-train fa-lg"></i> 交通費</a></li>
-                        <li><a class="dropdown-item" href="javascript:$('#to').val('早餐');$('#to').trigger('change');"><i class="fa fa-cutlery fa-lg"></i> 早餐</a></li>
-                        <li><a class="dropdown-item" href="javascript:$('#to').val('午餐');$('#to').trigger('change');"><i class="fa fa-cutlery fa-lg"></i> 午餐</a></li>
-                        <li><a class="dropdown-item" href="javascript:$('#to').val('下午茶');$('#to').trigger('change');"><i class="fa fa-cutlery fa-lg"></i> 下午茶</a>  </li>
-                        <li><a class="dropdown-item" href="javascript:$('#to').val('晚餐');$('#to').trigger('change');"><i class="fa fa-glass fa-lg"></i> 晚餐</a></li>
-                        <li><a class="dropdown-item" href="javascript:$('#to').val('點心');$('#to').trigger('change');"><i class="fa fa-meh-o fa-lg"></i> 點心</a></li>
-                        <?php
-                        $stmt = $conn->prepare("SELECT DISTINCT `to` FROM `record` GROUP BY `to` ORDER BY MAX(`date`) DESC, MAX(`createTime`) DESC LIMIT 8;");
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-                        if ($result->num_rows > 0){
-                            echo '<li class="divider"></li>';
-                            while($row = $result->fetch_assoc()){
-                                echo '<li><a href="javascript:$(\'#to\').val(\'' . htmlspecialchars($row['to']) . '\');$(\'#to\').trigger(\'change\');">' . $row['to'] . '</a></li>';
-                            }
+                    <ul class="dropdown-menu dropdown-menu-right" id="to_fav_category"></ul>
+					<script>
+						function to_fav_click(value) {
+							$('#to').val(value).trigger('change');
                         }
-                        $stmt->close();
-                        ?>
-                    </ul>
+						
+						$.ajax({
+						url: "data/to-fav-category.php", 
+						success: function(result){ 
+							$.each(result, function(index, value){
+								var item = $('<li></li>');
+								var link = $('<a class="dropdown-item" href="javascript:to_fav_click(\'' +  encodeURI(value.name) + '\');"></a>');
+								if (value.icon) {
+                                    link.html('<i class="fa fa-lg ' + value.icon + '"></i> ' + value.name);
+                                }else{
+									link.text(value.name);
+								}
+
+								$("#to_fav_category").append(item.append(link));
+							});
+						},
+					});
+					</script>
                 </div>
             </div>
             <div class="input-group">
                 <span class="input-group-addon" id="from_currency_addon">Currency</span>
-                <?php $currencies = getCurrencies($conn);?>
-                <select class="form-control" id="from_currency" name="from_currency" aria-describedby="from_currency_addon">
-                <?php
-                $from_currency = getConfigValue($conn, 'add_from_currency', 'TWD');
-                foreach ($currencies as $option){
-                    $selected = $option->value == $from_currency ? 'selected="true"' : '';
-                    echo '<option value="' . $option->value . '" ' . $selected . '>' . $option->text . '</option>';
-                }
-                ?>
-                </select>
+                <select class="form-control" id="from_currency" name="from_currency" aria-describedby="from_currency_addon"></select>
+				<script>
+				var default_currency = "<?=getConfigValue($conn, 'add_from_currency', 'TWD')?>";
+				$.ajax({
+					url: "data/currency.php", 
+					success: function(result){ 
+						$.each(result, function(index, value){
+							var option = $("<option></option>").attr("value", value.code).text(value.code);
+							if (default_currency == value.code){
+								option.attr("selected", true);
+							}
+							$("#from_currency").append(option);
+						});
+					},
+				});
+				</script>
             </div>
             <div class="input-group">
                 <span class="input-group-addon" id="from_amount_addon">Amount</span>
@@ -221,25 +221,30 @@ if (!$conn) {
             </div>
             <div class="input-group">
                 <span class="input-group-addon" id="date_addon">Date</span>
-                <?php
-                $tz = new DateTimeZone('Europe/London');
-                $date = new DateTime(null, $tz);
-                $date->modify('+' . getTimezone($conn) . ' hours');
-                ?>
-                <input type="date" class="form-control" id="date" name="date" value="<?=$date->format('Y-m-d')?>" aria-describedby="date_addon" autocomplete="off">
-            </div>
-            <input type="button" id="btn_submit" class="btn btn-default" value="新增">
+                <input type="date" class="form-control" id="date" name="date" aria-describedby="date_addon" autocomplete="off">
+				<script>
+				$.ajax({
+					url: "data/date.php", 
+					success: function(result){ $("#date").val(result.current_date); },
+				});
+				</script>
+			</div>
+			<div>
+				<input type="button" id="btn_submit" class="btn btn-default" value="<?=($edit)? "修改" : "新增"?>">
+				<span id="message"></span>
+			</div>
 			<script>
 				$("#btn_submit").click(function(){
 					$("#btn_submit").attr("disabled", "true");
 
 					jQuery.ajax({
-                        type: "POST",
+                        type: "<?=($edit)? "PUT" : "POST"?>",
 						url: "data/record.php",
 						processData: false,
 						contentType: false,
 						data: JSON.stringify(
                             {
+								"id": $("#id").val(),
                                 "from" : $("#from").val(),
                                 "fromAmount" : $("#from_amount").val(),
                                 "fromCurrency" : $("#from_currency").val(),
@@ -256,8 +261,13 @@ if (!$conn) {
                             $("#from_amount").removeAttr("hasChanged");
                             $("#location").removeAttr("hasChanged");
 
-                            $("#message").html('<div class="alert alert-success" role="alert"><strong>完成！</strong>新增記錄 ' + response.id + '。</div>');
-
+							<?php if ($edit){?>
+							var msgItem = $('<span class="alert alert-success" role="alert"><strong>完成！</strong>修改記錄 <?=$_GET['id']?>。</span>')
+							<?php }else{?>
+                            var msgItem = $('<span class="alert alert-success" role="alert"><strong>完成！</strong>新增記錄 ' + response.id + '。</span>');
+							<?php }?>
+							$("#message").append(msgItem.delay(3200).fadeOut());
+							
 							$("#btn_submit").removeAttr("disabled");
 						},
 						error: function(jqXHR, status){
@@ -267,6 +277,22 @@ if (!$conn) {
 					});
 				});
 			</script>
+			<?php if ($edit){?>
+			<script>
+				$.ajax({
+					url: "data/record.php?id=<?=urlencode($_GET["id"])?>", 
+					success: function(result){
+						$("#from").val(result.from);
+						$("#from_amount").val(result.fromAmount);
+						$("#from_currency").val(result.fromCurrency);
+						$("#to").val(result.to);
+						$("#text").val(result.text != null ? result.text : "NULL");
+						$("#location").val(result.location != null ? result.location : "NULL");
+						$("#date").val(result.date);
+					},
+				});
+			</script>
+			<?php }?>
         </form>
         <?php include("footer.php")?>
 	</div>

@@ -14,7 +14,7 @@
                     <?php if (!isset($active_page)){ $active_page = ""; }?>
 					<li<?php if($active_page == "today") { echo ' class="active"';}?>><a href="\">今日記錄</a></li>
                     <li<?php if($active_page == "yestoday") { echo ' class="active"';}?>><a href="yestoday.php">昨日記錄</a></li>
-                    <li<?php if($active_page == "add") { echo ' class="active"';}?>><a href="add.php">新增記錄</a></li>
+                    <li<?php if($active_page == "add") { echo ' class="active"';}?>><a href="record.php">新增記錄</a></li>
                     <li<?php if($active_page == "search") { echo ' class="active"';}?>><a href="search.php">搜尋記錄</a></li>
 					<li><a href="/Adminer">內部資料</a></li>
 				</ul>

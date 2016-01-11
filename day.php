@@ -6,10 +6,16 @@
     
     <style>
         @media only screen and (max-width: 480px) {
-            #main tr td:nth-child(1) { display:none; visibility:hidden; }
-            #main tr th:nth-child(1) { display:none; visibility:hidden; }
+            #main tr td:nth-child(2) { display:none; visibility:hidden; }
+            #main tr th:nth-child(2) { display:none; visibility:hidden; }
+			
+			#main tr td:nth-child(<?=($day_range != 1)? 9 : 8?>) { display:block !important; visibility:visible !important; }
+			#main tr th:nth-child(<?=($day_range != 1)? 9 : 8?>) { display:block !important; visibility:visible !important; }
         }
-        
+		
+		#main tr td:nth-child(<?=($day_range != 1)? 9 : 8?>) { display:none; visibility:hidden; }
+        #main tr th:nth-child(<?=($day_range != 1)? 9 : 8?>) { display:none; visibility:hidden; }
+
         td.rtd {
             text-align: right; 
         }
@@ -20,7 +26,7 @@
     
 	<div class="container theme-showcase" role="main">
 		<div class="page-header">
-			<h1><?=(isset($page_title))? $page_title : "某日紀錄"?> <a href="add.php"><i class="fa fa-plus"></i></a></h1>
+			<h1><?=(isset($page_title))? $page_title : "某日紀錄"?> <a href="record.php"><i class="fa fa-plus"></i></a></h1>
 		</div>
 		<?php
         if (!isset($day_offset)){
@@ -59,6 +65,7 @@
         <table class="table table-striped" id="main">
             <thead>
                 <tr>
+					<th></th>
                     <th>#</th>
                     <th>From</th>
                     <th>Amount</th>
@@ -66,6 +73,7 @@
                     <th>Text</th>
                     <th>Location</th>
                     <?php if ($day_range != 1){ echo "<th>Date</th>"; }?>
+					<th></th>
                 </tr>
             </thead>
             <tbody>
@@ -73,6 +81,7 @@
             while($row = $result->fetch_assoc()) {
             ?>
                 <tr>
+					<td><a href="record.php?id=<?=urlencode($row["id"])?>"><i class="fa fa-pencil-square-o"></i></a></td>
                     <td><?=$row["id"]?></td>
                     <td><?=htmlspecialchars($row["from"])?></td>
                     <td class="rtd"><?=rtrim(rtrim($row["fromAmount"], "0"), ".")?> <?=htmlspecialchars($row["fromCurrency"])?></td>
@@ -80,6 +89,7 @@
                     <td><?=htmlspecialchars($row["text"])?></td>
                     <td><?=htmlspecialchars($row["location"])?></td>
                     <?php if ($day_range != 1){ echo "<td>" . $row["date"] . "</td>"; }?>
+					<td><a href="record.php?id=<?=urlencode($row["id"])?>"><i class="fa fa-pencil-square-o"></i></a></td>
                 </tr>
             <?php
                 if ($row["from_type"] == 0 || $row["from_type"] == 1){
