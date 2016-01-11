@@ -23,6 +23,9 @@ if ($method == 'POST' || $method == 'PUT') {
         header('X-Error: ' . $err);
         http_response_code(400);
         die();
+    }else{
+        if (isset($req['text']) && $req['text'] == "NULL") $req['text'] = null;
+        if (isset($req['location']) && $req['location'] == "NULL") $req['location'] = null;
     }
 }
 
@@ -105,6 +108,8 @@ function doPUT($conn, $req){
         header('X-Error: ' . 'Update error, ' . $stmt->error);
         http_response_code(500);
         die();
+    }else{
+        echo "null";
     }
 }
 
