@@ -290,6 +290,14 @@ if (!$conn) {
 					},
 				});
 			</script>
+			<?if ($edit){?>
+			<script>
+				$("#from").attr("hasChanged", true);
+				$("#to").attr("hasChanged", true);
+				$("#from_amount").attr("hasChanged", true);
+				$("#location").attr("hasChanged", true);
+			</script>
+			<?}?>
         </form>
 	</article>
     <?php include("footer.php")?>
