@@ -254,11 +254,13 @@ if (!$conn) {
                             }
                         ),
                         dataType: "json",
-						success: function (response) {		
+						success: function (response) {
+							<?php if ($edit){?>
                             $("#from").removeAttr("hasChanged");
                             $("#to").removeAttr("hasChanged");
                             $("#from_amount").removeAttr("hasChanged");
                             $("#location").removeAttr("hasChanged");
+							<?php }?>
 
 							<?php if ($edit){?>
 							var msgItem = $('<span class="alert alert-success" role="alert"><strong>完成！</strong>修改記錄 <?=$_GET['id']?>。</span>')
@@ -290,14 +292,14 @@ if (!$conn) {
 					},
 				});
 			</script>
-			<?if ($edit){?>
+			<?php if ($edit){?>
 			<script>
 				$("#from").attr("hasChanged", true);
 				$("#to").attr("hasChanged", true);
 				$("#from_amount").attr("hasChanged", true);
 				$("#location").attr("hasChanged", true);
 			</script>
-			<?}?>
+			<?php }?>
         </form>
 	</article>
     <?php include("footer.php")?>
