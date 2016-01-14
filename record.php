@@ -27,7 +27,7 @@ if (!$conn) {
 	}
     include("navigation.php")?>
     
-	<div class="container theme-showcase" role="main">
+	<article class="container theme-showcase" role="main">
 		<div class="page-header">
 			<h1><?=($edit)? "修改" : "新增"?>記錄</h1>
 		</div>
@@ -40,7 +40,7 @@ if (!$conn) {
 			<?php }?>
             <div class="input-group">
                 <span class="input-group-addon" id="from_addon">From</span>
-                <input type="text" class="form-control" id="from" name="from" value="<?=htmlspecialchars(getConfigValue($conn, 'add_from', '現金-錢包'))?>" aria-describedby="from_addon" data-provide="typeahead" autocomplete="off">
+                <input type="text" class="form-control" id="from" name="from" aria-describedby="from_addon" data-provide="typeahead" autocomplete="off">
                 <script>
                     $("#from").typeahead({ 
                         hint: true, 
@@ -90,7 +90,7 @@ if (!$conn) {
             </div>
             <div class="input-group">
                 <span class="input-group-addon" id="to_addon">To</span>
-                <input type="text" class="form-control" id="to" name="to" value="<?=htmlspecialchars(getConfigValue($conn, 'add_to', '現金-錢包'))?>" aria-describedby="to_addon" data-provide="typeahead" autocomplete="off">
+                <input type="text" class="form-control" id="to" name="to" aria-describedby="to_addon" data-provide="typeahead" autocomplete="off">
                 <script>
                     $("#to").typeahead({ 
                         hint: true, 
@@ -140,26 +140,31 @@ if (!$conn) {
             </div>
             <div class="input-group">
                 <span class="input-group-addon" id="from_currency_addon">Currency</span>
-                <select class="form-control" id="from_currency" name="from_currency" aria-describedby="from_currency_addon"></select>
+                <input type="text" class="form-control" id="from_currency" name="from_currency" aria-describedby="from_currency_addon"></input>
 				<script>
-				var default_currency = "<?=getConfigValue($conn, 'add_from_currency', 'TWD')?>";
 				$.ajax({
 					url: "data/currency.php", 
 					success: function(result){ 
+                        
+                        var input = $("#from_currency");
+
+                        var select = $('<select class="form-control" id="from_currency" name="from_currency" aria-describedby="from_currency_addon"></select>');
+                        
 						$.each(result, function(index, value){
-							var option = $("<option></option>").attr("value", value.code).text(value.code);
-							if (default_currency == value.code){
-								option.attr("selected", true);
-							}
-							$("#from_currency").append(option);
+						  	select.append($("<option></option>").attr("value", value.code).text(value.code));
 						});
+                        
+                        var parent = input.parent();
+                        var input_value = input.val();
+                        input.remove();
+                        parent.append(select.val(input_value));
 					},
 				});
 				</script>
             </div>
             <div class="input-group">
                 <span class="input-group-addon" id="from_amount_addon">Amount</span>
-                <input type="number" min = "0" class="form-control" id="from_amount" name="from_amount" value="0" aria-describedby="from_amount_addon" autocomplete="off">
+                <input type="number" min = "0" class="form-control" id="from_amount" name="from_amount" aria-describedby="from_amount_addon" autocomplete="off">
                 <script>
                     $("#from_amount").change(function(){
                         $("#from_amount").attr("hasChanged", true);
@@ -222,12 +227,6 @@ if (!$conn) {
             <div class="input-group">
                 <span class="input-group-addon" id="date_addon">Date</span>
                 <input type="date" class="form-control" id="date" name="date" aria-describedby="date_addon" autocomplete="off">
-				<script>
-				$.ajax({
-					url: "data/date.php", 
-					success: function(result){ $("#date").val(result.current_date); },
-				});
-				</script>
 			</div>
 			<div>
 				<input type="button" id="btn_submit" class="btn btn-default" value="<?=($edit)? "修改" : "新增"?>">
@@ -277,10 +276,9 @@ if (!$conn) {
 					});
 				});
 			</script>
-			<?php if ($edit){?>
 			<script>
 				$.ajax({
-					url: "data/record.php?id=<?=urlencode($_GET["id"])?>", 
+					url: "data/record.php?id=<?=urlencode((isset($_GET["id"]))? $_GET["id"] : 0)?>", 
 					success: function(result){
 						$("#from").val(result.from);
 						$("#from_amount").val(result.fromAmount);
@@ -292,10 +290,9 @@ if (!$conn) {
 					},
 				});
 			</script>
-			<?php }?>
         </form>
-        <?php include("footer.php")?>
-	</div>
+	</article>
+    <?php include("footer.php")?>
 </body>
 </html>
 <?php $conn->close();?>

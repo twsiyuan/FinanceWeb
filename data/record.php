@@ -59,18 +59,41 @@ function printJsonObject($id, $arrObj){
 }
 
 function getRecord($conn, $id){
-    $stmt = $conn->prepare('SELECT `from`, `fromAmount`, `fromCurrency`, `to`, `toAmount`, `toCurrency`, `text`, `location`, `date`, `reference` FROM `record` WHERE `id` = ?');
-    $stmt->bind_param('i', $id);
-    if (!$stmt->execute()){
-        header('X-Error: ' . 'Query error, ' . $stmt->error);
-        http_response_code(500);
-        die();
-    }
-
-    $row = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
+    if ($id != 0){
+        $stmt = $conn->prepare('SELECT `from`, `fromAmount`, `fromCurrency`, `to`, `toAmount`, `toCurrency`, `text`, `location`, `date`, `reference` FROM `record` WHERE `id` = ?');
+        $stmt->bind_param('i', $id);
+        if (!$stmt->execute()){
+            header('X-Error: ' . 'Query error, ' . $stmt->error);
+            http_response_code(500);
+            die();
+        }
     
-    return $row;
+        $data = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+    }else{
+        $tz = new DateTimeZone('Europe/London');
+        $offset = getTimezone($conn);
+        $date = new DateTime(null, $tz);
+        $date->modify('+' . $offset . ' hours');
+        
+        $data = (object)[
+            'from' => '現金-錢包',
+            'fromAmount' => 0,
+            'fromCurrency' => 'TWD',
+            
+            'to' => '現金-錢包',
+            'toAmount' => null,
+            'toCurrency' => null,
+            
+            'text' => '',
+            'location' => '',
+            'date' => $date->format('Y-m-d'),
+            
+            'reference' => null,
+        ];
+    }
+    
+    return $data;
 }
 
 function doPUT($conn, $req){

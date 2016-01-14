@@ -19,7 +19,7 @@
 	<?php $active_page = "search";
     include("navigation.php")?>
     
-	<div class="container theme-showcase" role="main">
+	<article class="container theme-showcase" role="main">
 		<div class="page-header">
 			<h1>搜尋資料</h1>
 		</div>
@@ -171,8 +171,8 @@
 
         $conn->close();
         ?>
-        
-        <?php include("footer.php")?>
-	</div>
+
+	</article>
+    <?php include("footer.php")?>
 </body>
 </html>

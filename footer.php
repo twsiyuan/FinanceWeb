@@ -4,5 +4,7 @@ if (!isset($started_at)) {
 }
 ?>
 <footer class="footer">
-    <p><?="Page generated in " . round((microtime(true) - $started_at), 4) . " seconds"?></p>
+    <div class="row text-center">
+        <p><?="Page generated in " . round((microtime(true) - $started_at), 4) . " seconds"?></p>
+    </div>
 </footer>
