@@ -1,3 +1,0 @@
-[05-Oct-2015 09:24:56 Asia/Taipei] PHP Warning:  mysqli::query(): MySQL server has gone away in F:\Dropbox\Self\Finance\TWAMPd2\htdocs\Adminer\adminer-4.2.1.php on line 190
-[05-Oct-2015 09:24:56 Asia/Taipei] PHP Warning:  mysqli::query(): Error reading result set's header in F:\Dropbox\Self\Finance\TWAMPd2\htdocs\Adminer\adminer-4.2.1.php on line 190
-[05-Oct-2015 11:20:00 Asia/Taipei] PHP Fatal error:  Out of memory (allocated 51904512) (tried to allocate 48496624 bytes) in F:\Dropbox\Self\Finance\TWAMPd2\htdocs\Adminer\adminer-4.2.1.php on line 1598
