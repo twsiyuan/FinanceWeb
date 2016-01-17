@@ -255,7 +255,7 @@ if (!$conn) {
                         ),
                         dataType: "json",
 						success: function (response) {
-							<?php if ($edit){?>
+							<?php if (!$edit){?>
                             $("#from").removeAttr("hasChanged");
                             $("#to").removeAttr("hasChanged");
                             $("#from_amount").removeAttr("hasChanged");

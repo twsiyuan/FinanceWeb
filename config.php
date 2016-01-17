@@ -13,9 +13,6 @@ header('Content-type: text/html; charset=utf-8');
 
 function myUtf8Db($host, $user, $pw, $db){
     $conn = mysqli_connect($host, $user, $pw, $db);
-    if ($conn) {
-        $conn->prepare("SET NAMES 'utf8'")->execute(); 
-    }
     return $conn;
 }
 

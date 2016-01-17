@@ -3,7 +3,8 @@
 <html>
 <head>
     <?php include("header.php")?>
-    
+    <?php if (!isset($day_offset)) $day_offset = 0;?>
+	<?php if (!isset($day_range)) $day_range = 1;?>
     <style>
         @media only screen and (max-width: 480px) {
             .col_id { display:none; visibility:hidden; }
@@ -16,11 +17,16 @@
 		.col_last_edit { display:none; visibility:hidden; }
         .col_last_edit { display:none; visibility:hidden; }
         
-        .col_date { display:none; visibility:hidden; }
+        <?php if($day_range <= 1) echo '.col_date { display:none; visibility:hidden; }';?>
 
         td.col_amount {
             text-align: right; 
         }
+		
+		div.sidebar{
+			box-shadow: 0 0 2px black;
+		}
+
     </style>
 </head>
 <body>
@@ -29,41 +35,41 @@
 		<div class="page-header">
 			<h1><?=(isset($page_title))? $page_title : "某日紀錄"?> <a href="record.php"><i class="fa fa-plus"></i></a></h1>
 		</div>
-        <div class="row">
-            <div class="col-lg-9">
-                <div class="table-responsive">
-                    <table class="table table-striped" id="records">
-                        <thead>
-                            <tr>
-                                <th class="col_edit col_first_edit"></th>
-                                <th class="col_id">#</th>
-                                <th>From</th>
-                                <th class="col_amount">Amount</th>
-                                <th>To</th>
-                                <th>Text</th>
-                                <th>Location</th>
-                                <th class="col_date">Date</th>
-                                <th class="col_edit col_last_edit"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="col-lg-3">
-                <table class="table table-striped" id="assets">
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Current</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+		<div class="row">
+			<div class="table-responsive">
+				<table class="table table-striped" id="records">
+					<thead>
+						<tr>
+							<th class="col_edit col_first_edit"></th>
+							<th class="col_id">#</th>
+							<th>From</th>
+							<th class="col_amount">Amount</th>
+							<th>To</th>
+							<th>Text</th>
+							<th>Location</th>
+							<th class="col_date">Date</th>
+							<th class="col_edit col_last_edit"></th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="sidebar">
+				<table class="table table-striped" id="assets">
+					<thead>
+						<tr>
+							<th>Category</th>
+							<th>Current</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+		</div>
         <script>
             function numberWithCommas(x) {
                 var parts = x.toString().split(".");
@@ -87,11 +93,13 @@
                 });
                 return exist;
             }
-            
+			
             var date = new Date();
-            var date_str = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+            var start_date_str = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + (date.getDate() + (<?=$day_offset?>));
+			var end_date_str = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + (date.getDate() + (<?=$day_offset + $day_range?>));
+			
             $.ajax({
-                url: "data/records.php?start_date=" + date_str, 
+                url: "data/records.php?start_date=" + start_date_str + "&end_date=" + end_date_str,
                 success: function(result){ 
                     var ttemp = $('#records thead tr:first-child');
                     var tbody = $('#records tbody');
@@ -123,7 +131,7 @@
                     });
                     
                     $.ajax({
-                        url: "data/assets.php?date=" + date_str, 
+                        url: "data/assets.php?date=" + start_date_str, 
                         success: function(result){ 
                             var ttemp = $('#assets thead tr:first-child');
                             var tbody = $('#assets tbody');
