@@ -1,5 +1,6 @@
 <?php
 require("../config.php");
+header('Content-Type: application/json; charset=utf-8');
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -56,7 +57,7 @@ if (!$conn) {
     die();
 }
 
-$stmt = $conn->prepare('SELECT `id`, `from`, `fromAmount`, `fromCurrency`, `to`, `toAmount`, `toCurrency`, `text`, `location`, `date`, `reference` FROM `record` WHERE `date` >= ? AND `date` < ?');
+$stmt = $conn->prepare('SELECT `id`, `from`, `fromAmount`, `fromCurrency`, `to`, `toAmount`, `toCurrency`, `text`, `location`, `date`, `reference` FROM `record` WHERE `date` >= ? AND `date` < ? ORDER BY `date` ASC, `createTime` ASC');
 $stmt->bind_param('ss', $start_date, $end_date);
 if (!$stmt->execute()){
     header('X-Error: ' . 'Query error, ' . $stmt->error);
@@ -67,7 +68,6 @@ if (!$stmt->execute()){
 $result = $stmt->get_result();
 $first = true;
 
-header('Content-Type: application/json; charset=utf-8');
 echo '[';
 while($data = $result->fetch_assoc()){
     if (!$first){

@@ -1,5 +1,6 @@
 <?php
 require("../config.php");
+header('Content-Type: application/json; charset=utf-8');
 
 $conn = myUtf8Db($db_servername, $db_username, $db_password, $db_name);
 if (!$conn) {
@@ -8,7 +9,6 @@ if (!$conn) {
     die();
 }
 
-header('Content-Type: application/json; charset=utf-8');
 echo '{';
 
 $tz = new DateTimeZone('Europe/London');

@@ -1,5 +1,6 @@
 <?php
 require("../config.php");
+header('Content-Type: application/json; charset=utf-8');
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -38,7 +39,6 @@ if (!$stmt->execute()){
 $result = $stmt->get_result();
 $first = true;
 
-header('Content-Type: application/json; charset=utf-8');
 echo '[';
 while($data = $result->fetch_assoc()){
     if ($data['priority'] == 0){

@@ -1,5 +1,6 @@
 <?php
 require("../config.php");
+header('Content-Type: application/json; charset=utf-8');
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -43,6 +44,5 @@ while($row = $result->fetch_assoc()){
 $stmt->close();
 $conn->close();
 
-header('Content-Type: application/json; charset=utf-8');
 echo json_encode($data);
 ?>
