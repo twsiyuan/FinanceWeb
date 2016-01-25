@@ -1,5 +1,6 @@
 <?php
-$title = "Finance";
+$title   = "Finance";
+$rootUrl = "\\finance\\";
 
 $db_servername = "finance.cd0esl2fpzqa.ap-northeast-1.rds.amazonaws.com";
 $db_username = "app";
