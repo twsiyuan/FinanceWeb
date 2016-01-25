@@ -115,7 +115,7 @@ function doPUT($conn, $req){
     $sql = 'UPDATE `record` SET `from` = ?, `fromAmount` = ?, `fromCurrency` = ?, `to` = ?, `toAmount` = ?, `toCurrency` = ?, `text`=?, `location` = ?, `date` = ? WHERE `id` = ?';
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('sississssi', 
+    $stmt->bind_param('sssssssssi', 
                       $req['from'],
                       $req['fromAmount'],
                       $req['fromCurrency'],
@@ -153,7 +153,7 @@ function doPOST($conn, $req){
     $sql = 'INSERT INTO `record`(`from`, `fromAmount`, `fromCurrency`, `to`, `toAmount`, `toCurrency`, `text`, `location`, `date`)VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('sississss', 
+    $stmt->bind_param('sssssssss', 
                       $req['from'],
                       $req['fromAmount'],
                       $req['fromCurrency'],
